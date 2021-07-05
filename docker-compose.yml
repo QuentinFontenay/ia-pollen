@@ -1,0 +1,42 @@
+version: '3'
+services:
+  spark-master:
+    container_name: spark-master
+    hostname: spark-master
+    image: spark-image
+    ports:
+      - '8080:8080'
+    volumes:
+      - .:/opt/app/modelIA
+    networks:
+      - spark-network
+    expose: 
+      - '22'
+    stdin_open: true
+    tty: true 
+
+  spark-worker-1:
+    container_name: spark-slaves1
+    hostname: spark-slaves1
+    image: spark-image
+    networks:
+      - spark-network
+    expose: 
+      - '22'
+    stdin_open: true
+    tty: true 
+
+  spark-worker-2:
+    container_name: spark-slaves2
+    hostname: spark-slaves2
+    image: spark-image
+    networks:
+      - spark-network
+    expose: 
+      - '22'
+    stdin_open: true
+    tty: true 
+  
+networks:
+  spark-network:
+    driver: bridge
