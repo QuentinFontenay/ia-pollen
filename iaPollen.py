@@ -2,7 +2,7 @@ from pyspark.ml import Pipeline
 # from pyspark.ml.classification import LogisticRegression
 from pyspark.ml.feature import HashingTF, Tokenizer, StandardScaler, VectorAssembler, StringIndexer, OneHotEncoder
 from pyspark.sql import SQLContext
-from pyspark import SparkContext, SparkConf
+from pyspark import SparkContext, SparkConf, SparkFiles
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml.classification import LogisticRegression
 from pyspark.sql.types import IntegerType
@@ -11,12 +11,14 @@ import matplotlib as mpl
 from fbprophet.plot import plot_plotly
 import pandas as pd
 
+
 conf = SparkConf()
-conf.setMaster('spark://192.168.224.2:7077')
+conf.setMaster('spark://172.21.0.3:7077')
 conf.setAppName('IA pollen')
+
 sc = SparkContext(conf=conf)
 spark = SQLContext(sc)
-df = spark.read.format("csv").option('header', 'true').load("file:///opt/app/modelIA/cassandra.csv")
+df = spark.read.format("csv").option('header', 'true').load("cassandra.csv")
 
 df_sort = df.orderBy(['Date'], ascending = [True])
 
@@ -30,14 +32,17 @@ data_df.show(5)
 pandas = data_df.toPandas()
 train_dataset= pd.DataFrame()
 train_dataset['ds'] = pd.to_datetime(pandas["Date"])
-train_dataset['y']=pandas['Alnus']
+train_dataset['y'] = pandas['Alnus']
 
 prophet_model = Prophet()
 prophet_model.fit(train_dataset)
 period_in_hours = 24 * 30
 future = prophet_model.make_future_dataframe(periods=period_in_hours, freq='H')
 forecast = prophet_model.predict(df=future)
+print(forecast)
 fig1=prophet_model.plot(forecast)
+
+fig1.show()
 # MaxAirTempC_indexer = StringIndexer(inputCol = 'MaxAirTempC', outputCol = 'MaxAirTempCIndex')
 # MaxAirTempC_encoder = OneHotEncoder(inputCol='MaxAirTempCIndex', outputCol = 'MaxAirTempCVec')
 

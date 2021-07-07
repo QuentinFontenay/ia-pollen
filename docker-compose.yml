@@ -6,8 +6,9 @@ services:
     image: spark-image
     ports:
       - '8080:8080'
+      - '4040:4040'
     volumes:
-      - .:/opt/app/modelIA
+      - .:/opt/workspace
     networks:
       - spark-network
     expose: 
@@ -19,8 +20,12 @@ services:
     container_name: spark-slaves1
     hostname: spark-slaves1
     image: spark-image
+    ports:
+      - '8081:8081'
     networks:
       - spark-network
+    volumes:
+      - .:/opt/workspace
     expose: 
       - '22'
     stdin_open: true
@@ -30,13 +35,26 @@ services:
     container_name: spark-slaves2
     hostname: spark-slaves2
     image: spark-image
+    volumes:
+      - .:/opt/workspace
+    ports:
+      - '8082:8082'
     networks:
       - spark-network
     expose: 
       - '22'
     stdin_open: true
     tty: true 
-  
+
+  jupyter:
+    container_name: jupyter-notebook
+    image: jupyter/pyspark-notebook
+    ports:
+        - "8888:8888"
+    volumes:
+        - .:/opt/workspace
+    networks:
+        - spark-network
 networks:
   spark-network:
     driver: bridge
